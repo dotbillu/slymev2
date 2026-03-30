@@ -2,8 +2,9 @@ import { Router } from "express";
 import type { Router as ExpressRouter } from "express";
 import { OAuth2Client } from "google-auth-library";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
+import jwt from "jsonwebtoken";
 const router: ExpressRouter = Router();
+import "dotenv/config";
 
 router.post("/oauth", async (req, res) => {
   try {
@@ -17,8 +18,8 @@ router.post("/oauth", async (req, res) => {
     });
     const payload = ticket.getPayload();
 
-    if (!payload) {
-      return res.status(401).json({ error: "Invalid token" });
+    if (!payload || payload.aud !== process.env.GOOGLE_CLIENT_ID) {
+      return res.status(401).json({ error: "unauthorized/invalid token" });
     }
     const user = {
       googleId: payload.sub,
@@ -26,11 +27,18 @@ router.post("/oauth", async (req, res) => {
       name: payload.name,
       avatar: payload.picture,
     };
-    console.log(user)
+    console.log(user);
     //TODO: asve user in DB
+    const appToken = jwt.sign(
+      { id: user.googleId, email: user.email },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "7d" },
+    );
+
     return res.json({
       message: "Auth success",
       user,
+      token: appToken,
     });
   } catch (err) {
     console.error(err);
@@ -39,4 +47,3 @@ router.post("/oauth", async (req, res) => {
 });
 
 export default router;
-
