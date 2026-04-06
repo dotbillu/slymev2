@@ -3,8 +3,10 @@
 import { GoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
   const handleSuccess = async (credentialResponse: any) => {
     const token = credentialResponse.credential;
 
@@ -18,7 +20,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex lg:h-screen lg:w-screen bg-black login">
+    <div className="flex lg:h-screen lg:w-screen bg-black auth">
       <div className="lg:flex flex-1 hidden h-full ">
         <video
           src="/loginVideo.mp4"
@@ -65,7 +67,7 @@ export default function Login() {
               </label>
               <input
                 type="text"
-                placeholder="abhaayjha"
+                placeholder="e.g abhaayjha"
                 className="w-full p-3 px-3 rounded-md bg-zinc-800 text-white outline-none pl-3"
               />
             </motion.div>
@@ -114,7 +116,14 @@ export default function Login() {
               className="text-zinc-400 text-sm"
             >
               Don’t have an account?{" "}
-              <span className="text-green-400 cursor-pointer">Sign up</span>
+              <span
+                onClick={() => {
+                  router.push("/signup");
+                }}
+                className="text-green-400 cursor-pointer"
+              >
+                Sign up
+              </span>
             </motion.p>
           </div>
         </div>

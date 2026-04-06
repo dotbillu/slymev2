@@ -29,12 +29,12 @@ button,
   cursor: pointer;
 }
 
-.login button,
-.login [role="button"] {
+.auth button,
+.auth [role="button"] {
   border-radius: 20px;
 }
 
-.login input,
-.login [role="input"] {
+.auth input,
+.auth [role="input"] {
   border-radius: 20px;
 }
