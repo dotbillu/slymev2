@@ -33,6 +33,7 @@ button,
 .login [role="button"] {
   border-radius: 20px;
 }
+
 .login input,
 .login [role="input"] {
   border-radius: 20px;
