@@ -5,9 +5,11 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authSignUp, getMe } from "@/services/auth/service";
+import { CredentialSignUp, getMe, oauthSignUp } from "@/services/auth/service";
+import { useAuth } from "@/app/AuthProvider";
 
 export default function Signup() {
+  const { setUser } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({
     name: "",
@@ -20,26 +22,33 @@ export default function Signup() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async () => {
+  const handleFormSignin = async () => {
     try {
-      const res = await authSignUp(form);
+      const res = await CredentialSignUp(form);
       console.log(res);
-      console.log("me check:", me);
+
+      if (res) {
+        const me = await getMe();
+        setUser(me);
+
+        router.push("/");
+      }
     } catch (err: any) {
       console.log(err.message);
     }
   };
 
-  const handleSuccess = async (credentialResponse: any) => {
+  const handleOauthSignup = async (credentialResponse: any) => {
     const token = credentialResponse.credential;
+    const res = await oauthSignUp(token);
+    if (res) {
+      const me = await getMe();
+      setUser(me);
 
-    await fetch("http://localhost:3001/auth/signin/oauth", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token }),
-    });
+      router.push("/");
+    }
+
+    console.log(res);
   };
 
   return (
@@ -108,7 +117,7 @@ export default function Signup() {
 
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={handleSubmit}
+          onClick={handleFormSignin}
           className="w-full mt-3 bg-green-500 text-white p-3 rounded-md font-semibold"
         >
           Sign Up
@@ -121,7 +130,7 @@ export default function Signup() {
         </div>
 
         <GoogleLogin
-          onSuccess={handleSuccess}
+          onSuccess={handleOauthSignup}
           onError={() => console.log("Login Failed")}
           theme="filled_black"
           shape="circle"

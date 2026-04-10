@@ -17,12 +17,7 @@ app.use(express.json());
 
 app.use("/auth", authRoutes);
 
-app.get("/me", requireAuth, async (req, res) => {
-  return res.json({
-    message: "cookie auth working",
-    userId: req.userId,
-  });
-});
+
 const PORT = 3001;
 
 app.listen(PORT, () => {

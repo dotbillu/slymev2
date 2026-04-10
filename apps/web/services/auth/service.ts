@@ -1,6 +1,10 @@
 import { API_BASE } from "@/lib/config";
+import { User } from "@/types/user";
 
-export async function authSignIn(cred: string, password: string): Promise<any> {
+export async function CredentialSignIn(
+  cred: string,
+  password: string,
+): Promise<User | null> {
   const res = await fetch(`${API_BASE}/auth/signin/credentials`, {
     method: "POST",
     credentials: "include",
@@ -14,11 +18,43 @@ export async function authSignIn(cred: string, password: string): Promise<any> {
   });
 
   const data = await res.json();
+
+  if (!res.ok) return null;
+
+  return data.user;
+}
+export async function oauthSignIn(token: string): Promise<User | null> {
+  const res = await fetch(`${API_BASE}/auth/signin/oauth`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  });
+
+  const data = await res.json();
   console.log(data);
 
   return data;
 }
-export async function authSignUp({
+export async function oauthSignUp(token: string): Promise<User | null> {
+  const res = await fetch(`${API_BASE}/auth/signup/oauth`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token }),
+  });
+
+  const data = await res.json();
+  console.log(data);
+
+  return data;
+}
+
+export async function CredentialSignUp({
   name,
   username,
   email,
@@ -28,7 +64,7 @@ export async function authSignUp({
   username: string;
   email: string;
   password: string;
-}): Promise<any> {
+}): Promise<User | null> {
   const res = await fetch(`${API_BASE}/auth/signup/credentials`, {
     method: "POST",
     credentials: "include",
