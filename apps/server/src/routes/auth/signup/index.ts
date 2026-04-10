@@ -21,7 +21,7 @@ router.post("/oauth", verifyGoogleToken, async (req, res) => {
   const appToken = generateToken(user);
   res.cookie("token", appToken, {
     httpOnly: true,
-    secure: false, // true in prod
+    secure: false,
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });

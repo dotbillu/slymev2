@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import "./globals.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { AuthProvider } from "./AuthProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -9,14 +10,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-        <body className="min-h-full flex flex-col">{children}</body>
-      </GoogleOAuthProvider>
+      <body className="min-h-full flex flex-col">
+        <AuthProvider>
+          <GoogleOAuthProvider
+            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+          >
+            {children}
+          </GoogleOAuthProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }

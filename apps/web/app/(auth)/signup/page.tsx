@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authSignUp } from "@/services/auth/service";
+import { authSignUp, getMe } from "@/services/auth/service";
 
 export default function Signup() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function Signup() {
     try {
       const res = await authSignUp(form);
       console.log(res);
-      router.push("/dashboard");
+      console.log("me check:", me);
     } catch (err: any) {
       console.log(err.message);
     }

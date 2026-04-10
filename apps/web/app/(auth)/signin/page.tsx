@@ -87,6 +87,9 @@ export default function Login() {
               />
             </motion.div>
             <motion.button
+            onClick={()=>{
+              router.push("/")
+            }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               whileTap={{ scale: 1.05 }}

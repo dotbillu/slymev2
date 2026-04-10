@@ -51,3 +51,14 @@ export async function authSignUp({
 
   return data;
 }
+
+export async function getMe() {
+  const res = await fetch(`${API_BASE}/auth/me`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) return null;
+
+  return await res.json();
+}
