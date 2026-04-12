@@ -13,6 +13,7 @@ router.use("/signup", signUpRoutes);
 
 router.get("/me", requireAuth, async (req, res) => {
   const userId = (req as any).userId;
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
