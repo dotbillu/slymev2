@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 
 export function proxy(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
-
   const { pathname } = req.nextUrl;
 
   const isAuthPage =
@@ -21,3 +20,7 @@ export function proxy(req: NextRequest) {
 
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: ["/", "/signin", "/signup", "/get-started"],
+};

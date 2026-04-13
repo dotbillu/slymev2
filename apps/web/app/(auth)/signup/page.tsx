@@ -7,15 +7,22 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   CredentialSignUp,
-  getMe,
   oauthEmailVerify,
   oauthSignUpUser,
 } from "@/services/auth/service";
 import { useAuth } from "@/app/AuthProvider";
 
 export default function Signup() {
-  const {setUser } = useAuth();
+  const { setUser } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload();
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
 
   const [form, setForm] = useState({
     name: "",
@@ -33,6 +40,7 @@ export default function Signup() {
   const handleChange = (e: any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
   const handleFormSignin = async () => {
     try {
       setLoading(true);
@@ -41,13 +49,14 @@ export default function Signup() {
       const user = await CredentialSignUp(form);
 
       setUser(user);
-      router.replace("/")
+      window.location.replace("/");
     } catch (err: any) {
       setError(err.message || "Signup failed");
     } finally {
       setLoading(false);
     }
   };
+
   const handleOauthSignup = async (credentialResponse: any) => {
     try {
       setError(null);
@@ -65,6 +74,7 @@ export default function Signup() {
       setLoading(false);
     }
   };
+
   const handleUsernameSubmit = async () => {
     try {
       if (!googleToken) return;
@@ -75,13 +85,14 @@ export default function Signup() {
       const user = await oauthSignUpUser(googleToken, username);
 
       setUser(user);
-      router.replace("/");
+      window.location.replace("/");
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="w-screen min-h-screen bg-black flex justify-center items-center px-4 auth">
       <motion.div
@@ -90,7 +101,6 @@ export default function Signup() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md flex flex-col items-center gap-5"
       >
-        {/* Logo */}
         <motion.div
           initial={{ y: -80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -106,12 +116,10 @@ export default function Signup() {
           />
         </motion.div>
 
-        {/* Error */}
         {error && (
           <p className="text-red-500 text-sm text-center w-full">{error}</p>
         )}
 
-        {/* -------- NORMAL FORM -------- */}
         {step === "form" && (
           <>
             <div className="w-full flex flex-col gap-1">
@@ -164,14 +172,12 @@ export default function Signup() {
               {loading ? "Loading..." : "Sign Up"}
             </motion.button>
 
-            {/* Divider */}
             <div className="flex items-center w-full gap-2">
               <div className="flex-1 h-[1px] bg-zinc-600" />
               <span className="text-zinc-400 text-sm">or</span>
               <div className="flex-1 h-[1px] bg-zinc-600" />
             </div>
 
-            {/* Google */}
             <GoogleLogin
               onSuccess={handleOauthSignup}
               onError={() => setError("Google login failed")}
@@ -182,7 +188,6 @@ export default function Signup() {
           </>
         )}
 
-        {/* -------- USERNAME STEP -------- */}
         {step === "username" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -211,7 +216,6 @@ export default function Signup() {
           </motion.div>
         )}
 
-        {/* Footer */}
         <p className="text-zinc-400 text-sm">
           Already have an account?{" "}
           <span

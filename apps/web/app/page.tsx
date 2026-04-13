@@ -1,6 +1,5 @@
 "use client";
 import { getMe } from "@/services/auth/service";
-import Image from "next/image";
 import { useEffect } from "react";
 
 export default function Home() {

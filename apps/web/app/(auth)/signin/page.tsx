@@ -3,7 +3,7 @@
 import { GoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CredentialSignIn, oauthSignIn } from "@/services/auth/service";
 import { useAuth } from "@/app/AuthProvider";
@@ -14,9 +14,8 @@ type SigninModel = {
 };
 
 export default function Login() {
-  const { setUser } = useAuth();
+  const { user, checked, setUser } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
   const [details, setDetails] = useState<SigninModel>({
     username: "",
     password: "",
@@ -24,38 +23,59 @@ export default function Login() {
 
   const [credError, setCredError] = useState<string | null>(null);
   const [oauthError, setOauthError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (checked && user) {
+      router.replace("/");
+    }
+  }, [checked, user, router]);
+
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload();
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
 
   const handleLogin = async () => {
+    if (loading) return;
     try {
+      setLoading(true);
       setCredError(null);
 
       const user = await CredentialSignIn(details.username, details.password);
 
       setUser(user);
-
-      router.replace("/");
+      window.location.replace("/");
     } catch (err: any) {
       setOauthError(null);
       setCredError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleOauthSignin = async (credentialResponse: any) => {
+    if (loading) return;
     try {
+      setLoading(true);
       setOauthError(null);
 
       const token = credentialResponse.credential;
-
       const user = await oauthSignIn(token);
 
       setUser(user);
-
-      router.replace("/");
+      window.location.replace("/");
     } catch (err: any) {
       setCredError(null);
       setOauthError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="flex lg:h-screen lg:w-screen bg-black auth">
       <div className="lg:flex flex-1 hidden h-full ">
@@ -104,10 +124,11 @@ export default function Login() {
 
           <motion.button
             onClick={handleLogin}
+            disabled={loading}
             whileTap={{ scale: 1.05 }}
-            className="w-full bg-green-500 text-white p-3 rounded-md font-semibold"
+            className="w-full bg-green-500 text-white p-3 rounded-md font-semibold disabled:opacity-50"
           >
-            Continue
+            {loading ? "Signing in..." : "Continue"}
           </motion.button>
 
           <div className="w-full flex items-center gap-2">
@@ -130,7 +151,7 @@ export default function Login() {
           />
 
           <p className="text-zinc-400 text-sm">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <span
               onClick={() => router.replace("/signup")}
               className="text-green-400 cursor-pointer"
