@@ -8,26 +8,9 @@ import {
   createUserOauth,
   generateToken,
   getUserbyEmail,
+  getUserbyUsername,
 } from "../../../services/auth/services";
 import { User } from "@prisma/client";
-
-router.post("/oauth", verifyGoogleToken, async (req, res) => {
-  const payload = (req as any).googlePayload;
-
-  let user: User | null = await getUserbyEmail(payload.email);
-  if (user)
-    return res.status(403).json({ error: "User already Exists ,Pls login" });
-  user = await createUserOauth(payload);
-  const appToken = generateToken(user);
-  res.cookie("token", appToken, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
-  return res.json({ message: "Auth success", user });
-});
 
 router.post("/credentials", async (req, res) => {
   const { name, username, password, email } = req.body;
@@ -37,7 +20,6 @@ router.post("/credentials", async (req, res) => {
       .status(400)
       .json({ error: "invalid username,dont use special charecters" });
   }
-  console.log("EMAIL:", email);
   let user = await getUserbyEmail(email);
   if (user) {
     return res.status(403).json({ error: "username already exists" });
@@ -54,4 +36,30 @@ router.post("/credentials", async (req, res) => {
   return res.json({ message: "Auth success", user });
 });
 
+router.post("/oauth/email-check", verifyGoogleToken, async (req, res) => {
+  const payload = (req as any).googlePayload;
+
+  let user: User | null = await getUserbyEmail(payload.email);
+  if (user) return res.status(403).json({ error: "Email already Exists" });
+  return res.json({ message: "Good Email", user });
+});
+router.post("/oauth/create-user", verifyGoogleToken, async (req, res) => {
+  const payload = (req as any).googlePayload;
+  const { username } = req.body;
+  let user = await getUserbyUsername(username);
+  if (user)
+    return res
+      .status(403)
+      .json({ error: "Username already Exists ,Pls login" });
+  user = await createUserOauth(payload, username);
+  const appToken = generateToken(user);
+  res.cookie("token", appToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  return res.json({ message: "Auth success", user });
+});
 export default router;

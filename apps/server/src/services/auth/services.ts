@@ -30,10 +30,14 @@ export async function getUserbyUsername(
   });
   return user;
 }
-export async function createUserOauth(payload: GooglePayload): Promise<User> {
+export async function createUserOauth(
+  payload: GooglePayload,
+  username: string,
+): Promise<User> {
   const data = {
     googleId: payload.sub,
     email: payload.email || "",
+    username: username,
     name: payload.name,
     avatarUrl: payload.picture,
   };

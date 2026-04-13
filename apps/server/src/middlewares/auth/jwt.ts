@@ -5,6 +5,11 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies.token;
 
   if (!token) {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
     return res.status(401).json({ error: "Not authenticated" });
   }
 
@@ -16,6 +21,11 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     (req as any).userId = decoded.id;
     next();
   } catch {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
     return res.status(401).json({ error: "Invalid token" });
   }
 }

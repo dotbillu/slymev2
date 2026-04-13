@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CredentialSignIn, getMe, oauthSignIn } from "@/services/auth/service";
+import { CredentialSignIn, oauthSignIn } from "@/services/auth/service";
 import { useAuth } from "@/app/AuthProvider";
 
 type SigninModel = {
@@ -21,33 +21,41 @@ export default function Login() {
     password: "",
   });
 
+  const [credError, setCredError] = useState<string | null>(null);
+  const [oauthError, setOauthError] = useState<string | null>(null);
+
   const router = useRouter();
 
   const handleLogin = async () => {
     try {
-      const res = await CredentialSignIn(details.username, details.password);
-      const me = await getMe();
-      setUser(me);
-      if (res) {
-        const me = await getMe();
-        setUser(me);
-        router.push("/");
-      }
-    } catch (err) {
-      console.error("Login failed", err);
+      setCredError(null);
+
+      const user = await CredentialSignIn(details.username, details.password);
+
+      setUser(user);
+
+      window.location.replace("/");
+    } catch (err: any) {
+      setOauthError(null);
+      setCredError(err.message);
     }
   };
 
   const handleOauthSignin = async (credentialResponse: any) => {
-    const token = credentialResponse.credential;
-    const res = await oauthSignIn(token);
-    if (res) {
-      const me = await getMe();
-      setUser(me);
-      router.push("/");
-    }
+    try {
+      setOauthError(null);
 
-    console.log(res);
+      const token = credentialResponse.credential;
+
+      const user = await oauthSignIn(token);
+
+      setUser(user);
+
+      window.location.replace("/");
+    } catch (err: any) {
+      setCredError(null);
+      setOauthError(err.message);
+    }
   };
 
   return (
@@ -71,7 +79,6 @@ export default function Login() {
             className="w-40 h-auto"
           />
 
-          {/* username */}
           <input
             type="text"
             placeholder="Email or username"
@@ -82,7 +89,6 @@ export default function Login() {
             className="w-full p-3 rounded-md bg-zinc-800 text-white outline-none"
           />
 
-          {/* password */}
           <input
             type="password"
             placeholder="Password"
@@ -101,6 +107,12 @@ export default function Login() {
             Continue
           </motion.button>
 
+          {credError && (
+            <p className="text-red-500 text-sm w-full text-center">
+              {credError}
+            </p>
+          )}
+
           <div className="w-full flex items-center gap-2">
             <div className="flex-1 h-[1px] bg-zinc-600" />
             <span className="text-zinc-400 text-sm">or</span>
@@ -109,11 +121,17 @@ export default function Login() {
 
           <GoogleLogin
             onSuccess={handleOauthSignin}
-            onError={() => console.log("Login Failed")}
+            onError={() => setOauthError("Google login failed")}
             text="signin_with"
             theme="filled_black"
             shape="circle"
           />
+
+          {oauthError && (
+            <p className="text-red-500 text-sm w-full text-center">
+              {oauthError}
+            </p>
+          )}
 
           <p className="text-zinc-400 text-sm">
             Don’t have an account?{" "}

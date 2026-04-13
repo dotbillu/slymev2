@@ -1,29 +1,38 @@
 import { API_BASE } from "@/lib/config";
 import { User } from "@/types/user";
+async function handleResponse(res: Response) {
+  let data;
 
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error("Invalid server response");
+  }
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Something went wrong");
+  }
+
+  return data;
+}
 export async function CredentialSignIn(
   cred: string,
   password: string,
-): Promise<User | null> {
+): Promise<User> {
   const res = await fetch(`${API_BASE}/auth/signin/credentials`, {
     method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      cred,
-      password,
-    }),
+    body: JSON.stringify({ cred, password }),
   });
 
-  const data = await res.json();
-
-  if (!res.ok) return null;
-
+  const data = await handleResponse(res);
   return data.user;
 }
-export async function oauthSignIn(token: string): Promise<User | null> {
+
+export async function oauthSignIn(token: string): Promise<User> {
   const res = await fetch(`${API_BASE}/auth/signin/oauth`, {
     method: "POST",
     credentials: "include",
@@ -33,27 +42,39 @@ export async function oauthSignIn(token: string): Promise<User | null> {
     body: JSON.stringify({ token }),
   });
 
-  const data = await res.json();
-  console.log(data);
-
-  return data;
+  const data = await handleResponse(res);
+  return data.user;
 }
-export async function oauthSignUp(token: string): Promise<User | null> {
-  const res = await fetch(`${API_BASE}/auth/signup/oauth`, {
+export async function oauthEmailVerify(
+  token: string,
+): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/auth/signup/oauth/email-check`, {
     method: "POST",
-    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ token }),
   });
 
-  const data = await res.json();
-  console.log(data);
-
-  return data;
+  return handleResponse(res);
 }
 
+export async function oauthSignUpUser(
+  token: string,
+  username: string,
+): Promise<User> {
+  const res = await fetch(`${API_BASE}/auth/signup/oauth/create-user`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token, username }),
+  });
+
+  const data = await handleResponse(res);
+  return data.user;
+}
 export async function CredentialSignUp({
   name,
   username,
@@ -64,37 +85,24 @@ export async function CredentialSignUp({
   username: string;
   email: string;
   password: string;
-}): Promise<User | null> {
+}): Promise<User> {
   const res = await fetch(`${API_BASE}/auth/signup/credentials`, {
     method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      name,
-      username,
-      email,
-      password,
-    }),
+    body: JSON.stringify({ name, username, email, password }),
   });
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.error || "Signup failed");
-  }
-
-  return data;
+  const data = await handleResponse(res);
+  return data.user;
 }
-
-export async function getMe() {
+export async function getMe(): Promise<User> {
   const res = await fetch(`${API_BASE}/auth/me`, {
     method: "GET",
     credentials: "include",
   });
 
-  if (!res.ok) return null;
-
-  return await res.json();
+  return handleResponse(res);
 }

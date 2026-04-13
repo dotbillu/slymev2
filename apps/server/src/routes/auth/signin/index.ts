@@ -14,7 +14,7 @@ router.post("/oauth", verifyGoogleToken, async (req, res) => {
 
   const user: User | null = await getUserbyEmail(payload.email);
   if (!user)
-    return res.status(403).json({ error: "Not registered pls signUp" });
+    return res.status(403).json({ error: "Not registered, try signing up?" });
 
   const appToken = generateToken(user);
   res.cookie("token", appToken, {
