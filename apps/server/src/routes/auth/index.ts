@@ -18,6 +18,41 @@ router.get("/me", requireAuth, async (req, res) => {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      name: true,
+      bio: true,
+      avatarUrl: true,
+      coverImageUrl: true,
+      createdAt: true,
+
+      rooms: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          imageUrl: true,
+          type: true,
+          createdAt: true,
+        },
+      },
+
+      gigs: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrls: true,
+          type: true,
+          reward: true,
+          date: true,
+          createdAt: true,
+          roomId: true,
+        },
+      },
+    },
   });
 
   if (!user) {
@@ -51,7 +86,7 @@ router.get("/me", requireAuth, async (req, res) => {
       sameSite: "strict",
     });
   }
+
   return res.json(user);
 });
-
 export default router;
