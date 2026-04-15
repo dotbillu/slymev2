@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -11,16 +6,80 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
 model User {
   id    String @id @default(cuid())
   email String @unique
-  googleId      String?  @unique
+  googleId String? @unique
   username String? @unique
+
   name  String?
   bio   String?
   avatarUrl String?
   coverImageUrl String?
   password String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  rooms    MapRoom[] @relation("UserRooms")    
+  mapRooms MapRoom[] @relation("MapRoomCreator")
+  gigs     Gig[]     @relation("GigCreator")
+
+  groupMessages GroupMessage[] @relation("UserGroupMessages")
+}
+
+model MapRoom {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  latitude    Float
+  longitude   Float
+  createdAt   DateTime @default(now())
+
+  createdBy User   @relation("MapRoomCreator", fields: [creatorId], references: [id])
+  creatorId String
+
+  members User[] @relation("UserRooms")
+  gigs    Gig[]  @relation("RoomGigs")
+
+  type     String?
+  imageUrl String?
+
+  groupMessages GroupMessage[] @relation("RoomGroupMessages")
+}
+
+model Gig {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  latitude    Float
+  longitude   Float
+  date        DateTime?
+  reward      String?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  createdBy User   @relation("GigCreator", fields: [creatorId], references: [id])
+  creatorId String
+
+  room   MapRoom? @relation("RoomGigs", fields: [roomId], references: [id])
+  roomId String?
+
+  type      String?
+  imageUrls String[] @default([])
+}
+
+model GroupMessage {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  sender   User   @relation("UserGroupMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId String
+
+  room   MapRoom @relation("RoomGroupMessages", fields: [roomId], references: [id], onDelete: Cascade)
+  roomId String
+
+  @@index([roomId])
 }

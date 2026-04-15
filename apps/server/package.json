@@ -10,7 +10,7 @@
     "dev": "tsx watch src/server.ts",
     "lint": "eslint src/",
     "db:gen": "npx prisma generate",
-    "db:mig": "npx prisma migrate dev; pnpm db:gen"
+    "db:mig": "npx prisma migrate dev"
   },
   "keywords": [],
   "author": "",
