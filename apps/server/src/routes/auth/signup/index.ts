@@ -39,7 +39,7 @@ router.post("/credentials", async (req, res) => {
 router.post("/oauth/email-check", verifyGoogleToken, async (req, res) => {
   const payload = (req as any).googlePayload;
 
-  let user: User | null = await getUserbyEmail(payload.email);
+  let user = await getUserbyEmail(payload.email);
   if (user) return res.status(403).json({ error: "Email already Exists" });
   return res.json({ message: "Good Email", user });
 });
