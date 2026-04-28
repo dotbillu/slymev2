@@ -56,11 +56,7 @@ export default function Navbar() {
                 href={i.href}
                 className={`flex items-center gap-4 px-3 py-2 rounded-xl transition hover:bg-white/30`}
               >
-                <Icon
-                size={26}
-                strokeWidth={isActive?3:2} 
-                className="rounded-4xl " 
-                />
+                <Icon size={26} strokeWidth={isActive ? 2.5 : 1.3} />
 
                 <motion.span
                   className={`text-sm absolute ml-10 ${isActive ? "font-bold" : ""}`}
@@ -75,17 +71,24 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="px-3">
+        <div className="px-3 ">
           <button
             onClick={() => setOpen((p) => !p)}
-            className="p-3 text-zinc-400 hover:text-white"
+            className="flex items-center gap-4 px-3 py-2 text-zinc-400 hover:text-white w-full hover:bg-white/30 rounded-xl"
           >
             <Menu size={26} />
+            <motion.span
+              className="text-sm absolute ml-10"
+              initial={{ x: -100, opacity: 0 }}
+              animate={{ x: open ? 0 : -10, opacity: open ? 1 : 0 }}
+            >
+              More
+            </motion.span>
           </button>
         </div>
       </motion.nav>
 
-      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a]/90 backdrop-blur">
+      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-black">
         <div className="flex justify-around items-center h-16">
           {items.slice(0, 5).map((i, k) => {
             const Icon = i.icon;
@@ -99,7 +102,7 @@ export default function Navbar() {
                   isActive ? "text-white" : "text-zinc-400"
                 }`}
               >
-                <Icon size={26} />
+                <Icon size={26} strokeWidth={isActive ? 2 : 1} />
               </Link>
             );
           })}
