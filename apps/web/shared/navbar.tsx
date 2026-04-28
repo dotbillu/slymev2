@@ -34,7 +34,7 @@ export default function Navbar() {
       <motion.nav
         onHoverStart={() => setOpen(true)}
         onHoverEnd={() => setOpen(false)}
-        animate={{ width: open ? 220 : 72 }}
+        animate={{ width: open ? 220 : 70 }}
         className="hidden md:flex fixed top-0 left-0 h-screen flex-col py-6 bg-black"
       >
         <Image
