@@ -27,7 +27,7 @@ function CtrlWheelZoom() {
     const el = map.getContainer();
 
     const onWheel = (e: WheelEvent) => {
-      if (!e.ctrlKey) {
+      if (e.ctrlKey) {
         e.preventDefault();
         return;
       }
@@ -62,7 +62,7 @@ export default function Map() {
 
       <TileLayer
         attribution="&copy; OpenStreetMap contributors"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
       />
 
       <Marker position={[51.505, -0.09]} icon={customIcon}>
