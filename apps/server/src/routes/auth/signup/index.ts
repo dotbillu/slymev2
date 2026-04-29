@@ -10,7 +10,6 @@ import {
   getUserbyEmail,
   getUserbyUsername,
 } from "../../../services/auth/services";
-import { User } from "@prisma/client";
 
 router.post("/credentials", async (req, res) => {
   const { name, username, password, email } = req.body;

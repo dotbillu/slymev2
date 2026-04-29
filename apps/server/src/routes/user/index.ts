@@ -1,8 +1,6 @@
 import { Router } from "express";
-
-import type { Router as ExpressRouter } from "express";
 import { getUserbyUsername } from "../../services/auth/services";
-const router: ExpressRouter = Router();
+const router = Router();
 
 router.get("/:username", async (req, res) => {
   const { username } = req.params;

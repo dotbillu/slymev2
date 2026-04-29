@@ -57,6 +57,7 @@ model Gig {
   longitude   Float
   date        DateTime?
   reward      String?
+  gigTime     DateTime?
   expiresAt   DateTime?
   createdAt   DateTime  @default(now())
 
